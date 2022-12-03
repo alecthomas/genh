@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euxo pipefail
+
+genh ./testdata
+go run ./testdata &
+trap 'kill "%%" || true' EXIT INT
+
+sleep 1
+
+curl -fsS http://localhost:8080/users | jq | tee /dev/stderr | jq -r '.[].name' | grep Alice
+curl -X POST http://localhost:8080/shutdown
